@@ -37,6 +37,14 @@ pub fn tay(cpu: &mut Cpu)
 	cpu.negative = is_negative!(cpu.y);
 }
 
+pub fn iny(cpu: &mut Cpu)
+{
+    cpu.y = cpu.sum(cpu.y, 1);
+
+	cpu.zero = cpu.y == 0;
+	cpu.negative = is_negative!(cpu.y);
+}
+
 pub fn dex(cpu: &mut Cpu)
 {
 	cpu.x = cpu.subst(cpu.x as u16, 1) as u8;

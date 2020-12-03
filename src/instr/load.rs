@@ -33,6 +33,20 @@ pub fn ldx_imm(cpu: &mut Cpu, byte: u8)
     cpu.x = byte;
 }
 
+pub fn ldy_imm(cpu: &mut Cpu, byte: u8)
+{
+	cpu.zero = byte == 0;
+	cpu.negative = is_negative!(byte);
+
+	cpu.y = byte;
+}
+
+pub fn ldy_abs(cpu: &mut Cpu, addr: u16)
+{
+	let byte = cpu.fetch_mem(addr);
+	ldy_imm(cpu, byte);
+}
+
 pub fn lda_imm(cpu: &mut Cpu, byte: u8)
 {
 	cpu.zero = byte == 0;

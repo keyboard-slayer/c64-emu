@@ -177,17 +177,47 @@ impl Cpu
 
     pub fn sum_addr(&mut self, addr: u16, byte: u8) -> u16 
     {
-        let mut sum: u16 = addr;
+        let mut sum: i16 = addr as i16;
 
         if is_negative!(byte)
         {
-            sum += (0xff - byte as u16) as u16;
+            sum += (byte as i16 - 0x100) as i16;
         }
         else 
         {
-            sum += byte as u16;
+            sum += byte as i16;
         }
 
-        sum
+        sum as u16
+    }
+
+    pub fn sum(&mut self, byte1: u8, byte2: u8) -> u8
+    {
+        let mut result: i16;
+
+        if is_negative!(byte1)
+        {
+            result = byte1 as i16 - 0x100;
+        }
+        else
+        {
+            result = byte1 as i16;
+        }
+
+        if is_negative!(byte2)
+        {
+            result += byte2 as i16 - 0x100;
+        }
+        else
+        {
+            result += byte2 as i16;
+        }
+
+        if result < 0
+        {
+            result += 0x100;
+        }
+
+        result as u8
     }
 }

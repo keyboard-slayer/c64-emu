@@ -41,6 +41,21 @@ pub fn eval(cpu: &mut Cpu)
                 load::ldx_imm(cpu, byte);
             }
 
+            0xa0 => {
+                let byte: u8 = cpu.fetch_next();
+                log_instr(*cpu, format!("LDY #${:02x}", byte));
+
+                load::ldy_imm(cpu, byte);
+            }
+
+            0x84 => {
+                let addr: u16 = cpu.fetch_next() as u16;
+
+                log_instr(*cpu, format!("LDY ${:02x}", addr));
+                load::ldy_abs(cpu, addr);
+
+            }
+
             0xbd => {
                 let addr_l: u8 = cpu.fetch_next();
                 let addr_u: u8 = cpu.fetch_next();
@@ -79,6 +94,18 @@ pub fn eval(cpu: &mut Cpu)
             0xca => {
                 log_instr(*cpu, format!("DEX"));
                 misc::dex(cpu);
+            }
+
+            0xc8 => {
+                log_instr(*cpu, format!("INY"));
+                misc::iny(cpu);
+            }
+
+            0xe6 => {
+                let addr: u16 = cpu.fetch_next() as u16;
+                log_instr(*cpu, format!("INC ${:02x}", addr));
+
+                mem::inc(cpu, addr);
             }
 
             0x20 => {
@@ -153,12 +180,30 @@ pub fn eval(cpu: &mut Cpu)
                 store::sta(cpu, addr);
             }
 
+            0x99 => {
+                let addr_l = cpu.fetch_next();
+                let addr_u = cpu.fetch_next();
+                let mut addr: u16 = translate!(addr_u, addr_l);
+
+                log_instr(*cpu, format!("STA ${:04x}, Y", addr));
+                addr = cpu.sum_addr(addr, cpu.y);
+
+                store::sta(cpu, addr);
+            }
+
             0x8e => {
                 let addr_l = cpu.fetch_next();
                 let addr_u = cpu.fetch_next();
                 let addr: u16 = translate!(addr_u, addr_l);
 
                 log_instr(*cpu, format!("STX ${:04x}", addr));
+                store::stx(cpu, addr);
+            }
+
+            0x86 => {
+                let addr: u16 = cpu.fetch_next() as u16;
+
+                log_instr(*cpu, format!("STX ${:02x}", addr));
                 store::stx(cpu, addr);
             }
 
@@ -189,7 +234,7 @@ pub fn eval(cpu: &mut Cpu)
             }
 
             _ => {
-                eprintln!("Unknown opcode 0x{:02x} at offset 0x{:04x}", opcode, cpu.pc);
+                eprintln!("Unknown opcode 0x{:02x} at offset 0x{:04x}", opcode, cpu.pc-1);
                 exit(1);
             }
         }
